@@ -1,0 +1,6 @@
+dist/
+site-dist.tgz
+preview_server.py
+inspect_excel.py
+.openai/hosting.local.json
+publish-source/

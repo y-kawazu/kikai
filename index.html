@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>機械査定</title>
+  <style>
+    :root {
+      --bg: #f3efe7;
+      --panel: rgba(255, 255, 255, 0.88);
+      --panel-strong: #fffdf8;
+      --ink: #1f2a27;
+      --muted: #5d6b67;
+      --accent: #0f766e;
+      --accent-strong: #0a4f4a;
+      --line: rgba(20, 32, 29, 0.12);
+      --shadow: 0 24px 70px rgba(31, 42, 39, 0.14);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(15, 118, 110, 0.18), transparent 32%),
+        linear-gradient(180deg, #f4f0e8 0%, #ebe4d7 100%);
+      min-height: 100vh;
+    }
+
+    .shell {
+      width: min(1240px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, rgba(255,255,255,0.92), rgba(247, 242, 232, 0.84));
+      border: 1px solid rgba(255,255,255,0.82);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 28px;
+      backdrop-filter: blur(10px);
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(15, 118, 110, 0.1);
+      color: var(--accent-strong);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    h1 {
+      margin: 14px 0 10px;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.1;
+    }
+
+    .lede,
+    .meta {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 0.8fr;
+      gap: 18px;
+      margin-top: 20px;
+    }
+
+    .hero-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px;
+    }
+
+    .hero-card strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1.4fr 0.8fr auto;
+      gap: 14px;
+      align-items: center;
+      margin: 22px 0 18px;
+    }
+
+    .search,
+    .filter {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.82);
+      font-size: 15px;
+      color: var(--ink);
+    }
+
+    .count {
+      text-align: right;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .card-button {
+      display: block;
+      width: 100%;
+      border: none;
+      padding: 0;
+      background: none;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .card-photo {
+      aspect-ratio: 4 / 3;
+      background: #dde4df;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .card-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card-photo.is-empty {
+      padding: 20px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .card-body {
+      padding: 16px 16px 18px;
+    }
+
+    .card-no {
+      margin: 0 0 8px;
+      color: var(--accent-strong);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.55;
+      color: var(--ink);
+    }
+
+    .card-meta {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .card-meta-row {
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+    }
+
+    .card-meta-row strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .card-meta-row span {
+      display: block;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .empty {
+      padding: 28px;
+      text-align: center;
+      color: var(--muted);
+      background: rgba(255,255,255,0.74);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    dialog {
+      width: min(1100px, calc(100% - 28px));
+      border: none;
+      border-radius: 28px;
+      padding: 0;
+      background: #fffdf8;
+      box-shadow: 0 36px 120px rgba(18, 28, 24, 0.4);
+    }
+
+    dialog::backdrop {
+      background: rgba(12, 19, 18, 0.72);
+      backdrop-filter: blur(6px);
+    }
+
+    .modal-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+    }
+
+    .photo-stage {
+      background: #101514;
+      min-height: 420px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    .photo-stage img {
+      max-width: 100%;
+      max-height: 72vh;
+      border-radius: 16px;
+      object-fit: contain;
+    }
+
+    .modal-copy {
+      padding: 24px;
+    }
+
+    .modal-top {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .close {
+      appearance: none;
+      border: none;
+      background: rgba(31,42,39,0.08);
+      color: var(--ink);
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .detail-list {
+      display: grid;
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .detail-list div {
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(243, 239, 231, 0.7);
+      border: 1px solid var(--line);
+    }
+
+    .detail-list strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .modal-link {
+      display: inline-flex;
+      margin-top: 16px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(15, 118, 110, 0.08);
+      color: var(--accent-strong);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 900px) {
+      .hero-grid,
+      .toolbar,
+      .modal-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .count {
+        text-align: left;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .shell {
+        width: min(100% - 20px, 1240px);
+        padding-top: 20px;
+      }
+
+      .hero {
+        padding: 22px 18px;
+        border-radius: 22px;
+      }
+
+      .gallery {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <span class="eyebrow">MACHINE APPRAISAL LIST</span>
+      <h1 id="page-title"></h1>
+      <p class="lede" id="page-subtitle"></p>
+      <div class="hero-grid">
+        <div class="hero-card">
+          <strong>ご利用方法</strong>
+          <p class="meta">写真を一覧で見ながら機械を確認できます。写真をクリックすると大きく表示され、数量や備考も確認できます。</p>
+        </div>
+        <div class="hero-card">
+          <strong>掲載情報</strong>
+          <p class="meta" id="page-meta"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="toolbar" aria-label="検索と絞り込み">
+      <input id="searchInput" class="search" type="search" placeholder="機械名・備考で検索">
+      <select id="photoFilter" class="filter">
+        <option value="all">すべて表示</option>
+        <option value="with-photo">写真ありのみ</option>
+        <option value="without-photo">写真なしのみ</option>
+      </select>
+      <div class="count" id="resultCount"></div>
+    </section>
+
+    <section id="gallery" class="gallery"></section>
+    <div class="empty" id="emptyState" hidden>該当する機械がありません。</div>
+  </div>
+
+  <dialog id="photoModal">
+    <div class="modal-grid">
+      <div class="photo-stage">
+        <img id="modalImage" alt="">
+      </div>
+      <div class="modal-copy">
+        <div class="modal-top">
+          <div>
+            <p class="muted" id="modalNo"></p>
+            <h2 id="modalTitle"></h2>
+          </div>
+          <button class="close" id="closeModal" type="button" aria-label="閉じる">×</button>
+        </div>
+        <a id="modalImageLink" class="modal-link" href="#" target="_blank" rel="noopener noreferrer">画像だけを開く</a>
+        <div class="detail-list">
+          <div><strong>数量</strong><span id="modalQuantity"></span></div>
+          <div><strong>希望価格</strong><span id="modalDesiredPrice"></span></div>
+          <div><strong>備考</strong><span id="modalRemarks"></span></div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    const siteData = {"title": "機械査定", "subtitle": "（有）河津内装　殿", "note": "PDFの印刷部分のみ転記（手書きは未反映）", "summaryDate": "2026年6月29日", "items": [{"no": 1, "machineName": "糊付け機　MV32　ムラカミ製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/1.JPG"}, {"no": 2, "machineName": "自動プレス　AS-6　4尺×5040mm(8枚定盤)", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/2.JPG"}, {"no": 3, "machineName": "ランニングソー　4m(幅)×1200mm(奥)　シンクス製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/3.JPG"}, {"no": 4, "machineName": "昇降盤　マーキュリー", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/4.JPG"}, {"no": 5, "machineName": "スライドソー　JUNO1600　LAZZARI製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/5.JPG"}, {"no": 6, "machineName": "軸傾斜横切り盤　KS-T1300FS　桑原製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/6.JPG"}, {"no": 7, "machineName": "軸傾斜横切り盤　KS-T1300FS　桑原製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/7.JPG"}, {"no": 8, "machineName": "軸傾斜昇降盤　OLIVER4040", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/8.JPG"}, {"no": 9, "machineName": "手押しガンナ(エンシン)　AU12DX　愛知電機", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/9.JPG"}, {"no": 10, "machineName": "自動ガンナ(エンシン)　GN-45　鈴三製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/10.JPG"}, {"no": 11, "machineName": "全自動プレス　FT4(4尺×8尺)　横井製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/11.JPG"}, {"no": 12, "machineName": "全自動プレス　FT4(4尺×8尺)　横井製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/12.JPG"}, {"no": 13, "machineName": "高周波接着機　BONDEX-8R(4尺幅)　山本ビニター製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/13.JPG"}, {"no": 14, "machineName": "縁貼り機　SPRINT1310　ホルツ製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/14.JPG"}, {"no": 15, "machineName": "汎用ボーリング機　DOWLEX21 CC30", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/15.JPG"}, {"no": 16, "machineName": "自動ガンナ　SP-200　yuki製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/16.JPG"}, {"no": 17, "machineName": "ペティワーク　AL300　協和製", "quantity": "6", "desiredPrice": "", "remarks": "", "photoPath": "写真/17.JPG"}, {"no": 18, "machineName": "エッジフォーマ　MEF-380N　新前田製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/18.JPG"}, {"no": 19, "machineName": "面取り機　SM123G　庄田製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/19.JPG"}, {"no": 20, "machineName": "テノーナ　KMW6-1200　カミヤ製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/20.JPG"}, {"no": 21, "machineName": "角のみ　C-TYPE　奥村製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/21.JPG"}, {"no": 23, "machineName": "サンダー　E-600型　小阪製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/23.JPG"}, {"no": 24, "machineName": "ボール盤　BEH-360", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/24.JPG"}, {"no": 25, "machineName": "コンプレッサー　PB-3.7MN6　日立製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/25.JPG"}, {"no": 26, "machineName": "ドライヤー　RDA-37E", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/26.JPG"}, {"no": 27, "machineName": "NCルータ　唐津鉄工製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/27.JPG"}, {"no": 28, "machineName": "NCルータ　20Z 4×8尺　シンクス製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/28.JPG"}, {"no": 29, "machineName": "テーブルリフター　1m×2m", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/29.JPG"}, {"no": 30, "machineName": "リップソー　KR-30　桑原製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/30.JPG"}, {"no": 31, "machineName": "モルダー　プロフィマット22N　ヴァイニッヒ製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/31.JPG"}, {"no": 32, "machineName": "手押しガンナ(エンシン)　NKT300　ノダ製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/32.JPG"}, {"no": 33, "machineName": "帯鋸盤　B-600A　日立製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/33.JPG"}, {"no": 34, "machineName": "ムラ取ガンナ　KPW-350　桑原製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/34.JPG"}, {"no": 35, "machineName": "コンプレッサー　3.7kw　日立製", "quantity": "3", "desiredPrice": "", "remarks": "", "photoPath": "写真/35.JPG"}, {"no": 36, "machineName": "ドライヤー　DRC-4D　明治製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/36.JPG"}, {"no": 37, "machineName": "コンプレッサー　1.5kw　岩田製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/37.JPG"}, {"no": 38, "machineName": "コンプレッサー　2.2kw　岩田製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/38.JPG"}, {"no": 39, "machineName": "超仕上げ機　SK-250A　シンクス製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/39.JPG"}, {"no": 40, "machineName": "NCボーリング　1m×2m　シンクス製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/40.JPG"}, {"no": 41, "machineName": "糊付機小型", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/41.JPG"}, {"no": 42, "machineName": "スポットクーラーPromort", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/42.JPG"}, {"no": 43, "machineName": "マキタ超仕上げ小型LP1802C", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/43.JPG"}]};
+    const items = siteData.items;
+    const els = {
+      title: document.getElementById("page-title"),
+      subtitle: document.getElementById("page-subtitle"),
+      meta: document.getElementById("page-meta"),
+      search: document.getElementById("searchInput"),
+      filter: document.getElementById("photoFilter"),
+      count: document.getElementById("resultCount"),
+      gallery: document.getElementById("gallery"),
+      empty: document.getElementById("emptyState"),
+      modal: document.getElementById("photoModal"),
+      modalImage: document.getElementById("modalImage"),
+      modalNo: document.getElementById("modalNo"),
+      modalTitle: document.getElementById("modalTitle"),
+      modalQuantity: document.getElementById("modalQuantity"),
+      modalDesiredPrice: document.getElementById("modalDesiredPrice"),
+      modalRemarks: document.getElementById("modalRemarks"),
+      modalImageLink: document.getElementById("modalImageLink"),
+      closeModal: document.getElementById("closeModal"),
+    };
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function summarize() {
+      const countText = `掲載 ${items.length} 台`;
+      const dateText = siteData.summaryDate ? ` / 作成日 ${siteData.summaryDate}` : "";
+      const noteText = siteData.note ? ` / ${siteData.note}` : "";
+      return countText + dateText + noteText;
+    }
+
+    function openModal(item) {
+      if (!item.photoPath) {
+        window.alert("この機械には写真が登録されていません。");
+        return;
+      }
+
+      els.modalNo.textContent = `No. ${item.no}`;
+      els.modalTitle.textContent = item.machineName;
+      els.modalImage.src = encodeURI(item.photoPath);
+      els.modalImage.alt = item.machineName;
+      els.modalImageLink.href = encodeURI(item.photoPath);
+      els.modalQuantity.textContent = item.quantity || "-";
+      els.modalDesiredPrice.textContent = item.desiredPrice || "-";
+      els.modalRemarks.textContent = item.remarks || "-";
+      els.modal.showModal();
+    }
+
+    function renderCards() {
+      const keyword = els.search.value.trim().toLowerCase();
+      const photoMode = els.filter.value;
+      const filtered = items.filter((item) => {
+        const text = [item.machineName, item.remarks].join(" ").toLowerCase();
+        const matchKeyword = !keyword || text.includes(keyword);
+        const matchPhoto =
+          photoMode === "all" ||
+          (photoMode === "with-photo" && item.photoPath) ||
+          (photoMode === "without-photo" && !item.photoPath);
+        return matchKeyword && matchPhoto;
+      });
+
+      els.count.textContent = `${filtered.length} 件表示`;
+      els.empty.hidden = filtered.length !== 0;
+
+      els.gallery.innerHTML = filtered.map((item) => {
+        const photoBlock = item.photoPath
+          ? `<div class="card-photo"><img src="${encodeURI(item.photoPath)}" alt="${escapeHtml(item.machineName)}"></div>`
+          : `<div class="card-photo is-empty">写真未登録</div>`;
+
+        return `
+          <article class="card">
+            <button class="card-button" type="button" data-no="${escapeHtml(item.no)}">
+              ${photoBlock}
+              <div class="card-body">
+                <p class="card-no">No. ${escapeHtml(item.no)}</p>
+                <h2 class="card-title">${escapeHtml(item.machineName)}</h2>
+                <div class="card-meta">
+                  <div class="card-meta-row"><strong>数量</strong><span>${escapeHtml(item.quantity || "-")}</span></div>
+                  <div class="card-meta-row"><strong>備考</strong><span>${escapeHtml(item.remarks || "-")}</span></div>
+                </div>
+              </div>
+            </button>
+          </article>
+        `;
+      }).join("");
+
+      for (const button of els.gallery.querySelectorAll(".card-button")) {
+        button.addEventListener("click", () => {
+          const item = items.find((entry) => String(entry.no) === button.dataset.no);
+          if (item) openModal(item);
+        });
+      }
+    }
+
+    els.title.textContent = siteData.title;
+    els.subtitle.textContent = siteData.subtitle || "写真の下に機械名が並ぶ一覧です。";
+    els.meta.textContent = summarize();
+
+    els.search.addEventListener("input", renderCards);
+    els.filter.addEventListener("change", renderCards);
+    els.closeModal.addEventListener("click", () => els.modal.close());
+    els.modal.addEventListener("click", (event) => {
+      const rect = els.modal.getBoundingClientRect();
+      const inside = rect.top <= event.clientY && event.clientY <= rect.bottom && rect.left <= event.clientX && event.clientX <= rect.right;
+      if (!inside) els.modal.close();
+    });
+
+    renderCards();
+  </script>
+</body>
+</html>
