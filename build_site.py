@@ -12,6 +12,9 @@ XLSX_PATH = next(ROOT.glob("*.xlsx"))
 PHOTO_DIR = ROOT / "写真"
 OUTPUT_PATH = ROOT / "index.html"
 EXCLUDED_NUMBERS = {22}
+REMARK_OVERRIDES = {
+    27: "売約済み",
+}
 
 
 def clean(value: object) -> str:
@@ -61,7 +64,7 @@ def build_data() -> dict[str, object]:
                 "machineName": machine_name,
                 "quantity": clean(worksheet[f"C{row}"].value),
                 "desiredPrice": clean(worksheet[f"D{row}"].value),
-                "remarks": clean(worksheet[f"F{row}"].value),
+                "remarks": REMARK_OVERRIDES.get(number, clean(worksheet[f"F{row}"].value)),
                 "photoPath": photo_path,
             }
         )
