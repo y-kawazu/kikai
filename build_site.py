@@ -12,8 +12,9 @@ XLSX_PATH = ROOT / "KN機械査定_機械名クリック写真リンク付き.xl
 REFERENCE_XLSX_PATH = ROOT / "KN機械査定_参考.xlsx"
 PHOTO_DIR = ROOT / "写真"
 OUTPUT_PATH = ROOT / "index.html"
-EXCLUDED_NUMBERS = {22}
+EXCLUDED_NUMBERS = set()
 SOLD_REMARK = "売約済み"
+SOLD_NUMBERS = {22, 23}
 
 
 def clean(value: object) -> str:
@@ -87,7 +88,7 @@ def build_data() -> dict[str, object]:
                 "machineName": reference_name or machine_name,
                 "quantity": clean(worksheet[f"C{row}"].value),
                 "desiredPrice": "",
-                "remarks": SOLD_REMARK if reference_remarks else clean(worksheet[f"F{row}"].value),
+                "remarks": SOLD_REMARK if number in SOLD_NUMBERS or reference_remarks else clean(worksheet[f"F{row}"].value),
                 "photoPath": photo_path,
             }
         )
