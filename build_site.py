@@ -8,13 +8,12 @@ from openpyxl import load_workbook
 
 
 ROOT = Path(__file__).resolve().parent
-XLSX_PATH = next(ROOT.glob("*.xlsx"))
+XLSX_PATH = ROOT / "KN機械査定_機械名クリック写真リンク付き.xlsx"
+REFERENCE_XLSX_PATH = ROOT / "KN機械査定_参考.xlsx"
 PHOTO_DIR = ROOT / "写真"
 OUTPUT_PATH = ROOT / "index.html"
 EXCLUDED_NUMBERS = {22}
-REMARK_OVERRIDES = {
-    27: "売約済み",
-}
+SOLD_REMARK = "売約済み"
 
 
 def clean(value: object) -> str:
@@ -38,9 +37,29 @@ def find_photo(hyperlink: str, row_no: int) -> str:
     return ""
 
 
+def build_reference_rows() -> dict[int, dict[str, str]]:
+    if not REFERENCE_XLSX_PATH.exists():
+        return {}
+
+    workbook = load_workbook(REFERENCE_XLSX_PATH, data_only=True)
+    worksheet = workbook[workbook.sheetnames[0]]
+
+    rows: dict[int, dict[str, str]] = {}
+    for row in range(1, worksheet.max_row + 1):
+        number = worksheet[f"A{row}"].value
+        if not isinstance(number, int):
+            continue
+        rows[number] = {
+            "machineName": clean(worksheet[f"B{row}"].value),
+            "remarks": clean(worksheet[f"F{row}"].value),
+        }
+    return rows
+
+
 def build_data() -> dict[str, object]:
     workbook = load_workbook(XLSX_PATH, data_only=True)
     worksheet = workbook[workbook.sheetnames[0]]
+    reference_rows = build_reference_rows()
 
     title = clean(worksheet["A1"].value) or "機械査定"
     subtitle = clean(worksheet["A2"].value)
@@ -58,13 +77,17 @@ def build_data() -> dict[str, object]:
 
         hyperlink = worksheet[f"B{row}"].hyperlink
         photo_path = find_photo(hyperlink.target if hyperlink else "", number)
+        reference_row = reference_rows.get(number, {})
+        reference_name = reference_row.get("machineName", "")
+        reference_remarks = reference_row.get("remarks", "")
+
         items.append(
             {
                 "no": number,
-                "machineName": machine_name,
+                "machineName": reference_name or machine_name,
                 "quantity": clean(worksheet[f"C{row}"].value),
-                "desiredPrice": clean(worksheet[f"D{row}"].value),
-                "remarks": REMARK_OVERRIDES.get(number, clean(worksheet[f"F{row}"].value)),
+                "desiredPrice": "",
+                "remarks": SOLD_REMARK if reference_remarks else clean(worksheet[f"F{row}"].value),
                 "photoPath": photo_path,
             }
         )
@@ -474,7 +497,6 @@ def render_html(data: dict[str, object]) -> str:
         <a id="modalImageLink" class="modal-link" href="#" target="_blank" rel="noopener noreferrer">画像だけを開く</a>
         <div class="detail-list">
           <div><strong>数量</strong><span id="modalQuantity"></span></div>
-          <div><strong>希望価格</strong><span id="modalDesiredPrice"></span></div>
           <div><strong>備考</strong><span id="modalRemarks"></span></div>
         </div>
       </div>
@@ -498,7 +520,6 @@ def render_html(data: dict[str, object]) -> str:
       modalNo: document.getElementById("modalNo"),
       modalTitle: document.getElementById("modalTitle"),
       modalQuantity: document.getElementById("modalQuantity"),
-      modalDesiredPrice: document.getElementById("modalDesiredPrice"),
       modalRemarks: document.getElementById("modalRemarks"),
       modalImageLink: document.getElementById("modalImageLink"),
       closeModal: document.getElementById("closeModal"),
@@ -532,7 +553,6 @@ def render_html(data: dict[str, object]) -> str:
       els.modalImage.alt = item.machineName;
       els.modalImageLink.href = encodeURI(item.photoPath);
       els.modalQuantity.textContent = item.quantity || "-";
-      els.modalDesiredPrice.textContent = item.desiredPrice || "-";
       els.modalRemarks.textContent = item.remarks || "-";
       els.modal.showModal();
     }}
