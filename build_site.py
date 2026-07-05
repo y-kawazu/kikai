@@ -324,107 +324,14 @@ def render_html(data: dict[str, object]) -> str:
       box-shadow: var(--shadow);
     }}
 
-    dialog {{
-      width: min(1100px, calc(100% - 28px));
-      border: none;
-      border-radius: 28px;
-      padding: 0;
-      background: #fffdf8;
-      box-shadow: 0 36px 120px rgba(18, 28, 24, 0.4);
-    }}
-
-    dialog::backdrop {{
-      background: rgba(12, 19, 18, 0.72);
-      backdrop-filter: blur(6px);
-    }}
-
-    .modal-grid {{
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-    }}
-
-    .photo-stage {{
-      background: #101514;
-      min-height: 420px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
-    }}
-
-    .photo-stage img {{
-      max-width: 100%;
-      max-height: 72vh;
-      border-radius: 16px;
-      object-fit: contain;
-    }}
-
-    .modal-copy {{
-      padding: 24px;
-    }}
-
-    .modal-top {{
-      display: flex;
-      align-items: start;
-      justify-content: space-between;
-      gap: 16px;
-    }}
-
-    .close {{
-      appearance: none;
-      border: none;
-      background: rgba(31,42,39,0.08);
-      color: var(--ink);
-      width: 40px;
-      height: 40px;
-      border-radius: 999px;
-      font-size: 24px;
-      cursor: pointer;
-    }}
-
     .muted {{
       color: var(--muted);
       font-size: 13px;
     }}
 
-    .detail-list {{
-      display: grid;
-      gap: 14px;
-      margin-top: 24px;
-    }}
-
-    .detail-list div {{
-      padding: 14px 16px;
-      border-radius: 16px;
-      background: rgba(243, 239, 231, 0.7);
-      border: 1px solid var(--line);
-    }}
-
-    .detail-list strong {{
-      display: block;
-      margin-bottom: 6px;
-      font-size: 12px;
-      color: var(--muted);
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }}
-
-    .modal-link {{
-      display: inline-flex;
-      margin-top: 16px;
-      padding: 10px 14px;
-      border-radius: 999px;
-      background: rgba(15, 118, 110, 0.08);
-      color: var(--accent-strong);
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 700;
-    }}
-
     @media (max-width: 900px) {{
       .hero-grid,
-      .toolbar,
-      .modal-grid {{
+      .toolbar {{
         grid-template-columns: 1fr;
       }}
 
@@ -482,28 +389,6 @@ def render_html(data: dict[str, object]) -> str:
     <div class="empty" id="emptyState" hidden>該当する機械がありません。</div>
   </div>
 
-  <dialog id="photoModal">
-    <div class="modal-grid">
-      <div class="photo-stage">
-        <img id="modalImage" alt="">
-      </div>
-      <div class="modal-copy">
-        <div class="modal-top">
-          <div>
-            <p class="muted" id="modalNo"></p>
-            <h2 id="modalTitle"></h2>
-          </div>
-          <button class="close" id="closeModal" type="button" aria-label="閉じる">×</button>
-        </div>
-        <a id="modalImageLink" class="modal-link" href="#" target="_blank" rel="noopener noreferrer">画像だけを開く</a>
-        <div class="detail-list">
-          <div><strong>数量</strong><span id="modalQuantity"></span></div>
-          <div><strong>備考</strong><span id="modalRemarks"></span></div>
-        </div>
-      </div>
-    </div>
-  </dialog>
-
   <script>
     const siteData = __PAYLOAD__;
     const items = siteData.items;
@@ -516,14 +401,6 @@ def render_html(data: dict[str, object]) -> str:
       count: document.getElementById("resultCount"),
       gallery: document.getElementById("gallery"),
       empty: document.getElementById("emptyState"),
-      modal: document.getElementById("photoModal"),
-      modalImage: document.getElementById("modalImage"),
-      modalNo: document.getElementById("modalNo"),
-      modalTitle: document.getElementById("modalTitle"),
-      modalQuantity: document.getElementById("modalQuantity"),
-      modalRemarks: document.getElementById("modalRemarks"),
-      modalImageLink: document.getElementById("modalImageLink"),
-      closeModal: document.getElementById("closeModal"),
     }};
 
     function escapeHtml(value) {{
@@ -542,20 +419,12 @@ def render_html(data: dict[str, object]) -> str:
       return countText + dateText + noteText;
     }}
 
-    function openModal(item) {{
+    function openPhoto(item) {{
       if (!item.photoPath) {{
         window.alert("この機械には写真が登録されていません。");
         return;
       }}
-
-      els.modalNo.textContent = `No. ${item.no}`;
-      els.modalTitle.textContent = item.machineName;
-      els.modalImage.src = encodeURI(item.photoPath);
-      els.modalImage.alt = item.machineName;
-      els.modalImageLink.href = encodeURI(item.photoPath);
-      els.modalQuantity.textContent = item.quantity || "-";
-      els.modalRemarks.textContent = item.remarks || "-";
-      els.modal.showModal();
+      window.open(encodeURI(item.photoPath), "_blank", "noopener,noreferrer");
     }}
 
     function renderCards() {{
@@ -581,7 +450,7 @@ def render_html(data: dict[str, object]) -> str:
 
         return `
           <article class="card">
-            <button class="card-button" type="button" data-no="${{escapeHtml(item.no)}}">
+            <button class="card-button" type="button" data-no="${{escapeHtml(item.no)}}" aria-label="${{escapeHtml(item.machineName)}} の写真を開く">
               ${photoBlock}
               <div class="card-body">
                 <p class="card-no">No. ${{escapeHtml(item.no)}}</p>
@@ -599,7 +468,7 @@ def render_html(data: dict[str, object]) -> str:
       for (const button of els.gallery.querySelectorAll(".card-button")) {{
         button.addEventListener("click", () => {{
           const item = items.find((entry) => String(entry.no) === button.dataset.no);
-          if (item) openModal(item);
+          if (item) openPhoto(item);
         }});
       }}
     }}
@@ -610,13 +479,6 @@ def render_html(data: dict[str, object]) -> str:
 
     els.search.addEventListener("input", renderCards);
     els.filter.addEventListener("change", renderCards);
-    els.closeModal.addEventListener("click", () => els.modal.close());
-    els.modal.addEventListener("click", (event) => {{
-      const rect = els.modal.getBoundingClientRect();
-      const inside = rect.top <= event.clientY && event.clientY <= rect.bottom && rect.left <= event.clientX && event.clientX <= rect.right;
-      if (!inside) els.modal.close();
-    }});
-
     renderCards();
   </script>
 </body>

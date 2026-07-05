@@ -217,107 +217,14 @@
       box-shadow: var(--shadow);
     }
 
-    dialog {
-      width: min(1100px, calc(100% - 28px));
-      border: none;
-      border-radius: 28px;
-      padding: 0;
-      background: #fffdf8;
-      box-shadow: 0 36px 120px rgba(18, 28, 24, 0.4);
-    }
-
-    dialog::backdrop {
-      background: rgba(12, 19, 18, 0.72);
-      backdrop-filter: blur(6px);
-    }
-
-    .modal-grid {
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-    }
-
-    .photo-stage {
-      background: #101514;
-      min-height: 420px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
-    }
-
-    .photo-stage img {
-      max-width: 100%;
-      max-height: 72vh;
-      border-radius: 16px;
-      object-fit: contain;
-    }
-
-    .modal-copy {
-      padding: 24px;
-    }
-
-    .modal-top {
-      display: flex;
-      align-items: start;
-      justify-content: space-between;
-      gap: 16px;
-    }
-
-    .close {
-      appearance: none;
-      border: none;
-      background: rgba(31,42,39,0.08);
-      color: var(--ink);
-      width: 40px;
-      height: 40px;
-      border-radius: 999px;
-      font-size: 24px;
-      cursor: pointer;
-    }
-
     .muted {
       color: var(--muted);
       font-size: 13px;
     }
 
-    .detail-list {
-      display: grid;
-      gap: 14px;
-      margin-top: 24px;
-    }
-
-    .detail-list div {
-      padding: 14px 16px;
-      border-radius: 16px;
-      background: rgba(243, 239, 231, 0.7);
-      border: 1px solid var(--line);
-    }
-
-    .detail-list strong {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 12px;
-      color: var(--muted);
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-
-    .modal-link {
-      display: inline-flex;
-      margin-top: 16px;
-      padding: 10px 14px;
-      border-radius: 999px;
-      background: rgba(15, 118, 110, 0.08);
-      color: var(--accent-strong);
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
     @media (max-width: 900px) {
       .hero-grid,
-      .toolbar,
-      .modal-grid {
+      .toolbar {
         grid-template-columns: 1fr;
       }
 
@@ -375,28 +282,6 @@
     <div class="empty" id="emptyState" hidden>該当する機械がありません。</div>
   </div>
 
-  <dialog id="photoModal">
-    <div class="modal-grid">
-      <div class="photo-stage">
-        <img id="modalImage" alt="">
-      </div>
-      <div class="modal-copy">
-        <div class="modal-top">
-          <div>
-            <p class="muted" id="modalNo"></p>
-            <h2 id="modalTitle"></h2>
-          </div>
-          <button class="close" id="closeModal" type="button" aria-label="閉じる">×</button>
-        </div>
-        <a id="modalImageLink" class="modal-link" href="#" target="_blank" rel="noopener noreferrer">画像だけを開く</a>
-        <div class="detail-list">
-          <div><strong>数量</strong><span id="modalQuantity"></span></div>
-          <div><strong>備考</strong><span id="modalRemarks"></span></div>
-        </div>
-      </div>
-    </div>
-  </dialog>
-
   <script>
     const siteData = {"title": "機械査定", "subtitle": "（有）河津内装　殿", "note": "PDFの印刷部分のみ転記（手書きは未反映）", "summaryDate": "2026年6月29日", "items": [{"no": 1, "machineName": "糊付け機　MV32　ムラカミ製", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/1.JPG"}, {"no": 2, "machineName": "MIDORI自動プレスAS-6　4尺×5040mm(8枚定盤)", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/2.JPG"}, {"no": 3, "machineName": "シンクス製ランニングソー4m(幅)×1200mm(奥)", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/3.JPG"}, {"no": 4, "machineName": "横井工業㈱マーキュリー昇降盤", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/4.JPG"}, {"no": 5, "machineName": "LAZZARI製スライドソーJUNO1600", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/5.JPG"}, {"no": 6, "machineName": "桒原製作所製軸傾斜横切り盤KS-T1300FS", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/6.JPG"}, {"no": 7, "machineName": "桒原製作所製軸傾斜横切り盤KS-T1300FS", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/7.JPG"}, {"no": 8, "machineName": "OLIVER軸傾斜昇降盤4040", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/8.JPG"}, {"no": 9, "machineName": "愛知電機商会㈱手押しガンナAU12DX※エンシンブロック換装済", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/9.JPG"}, {"no": 10, "machineName": "鈴三鉄工所自動ガンナGN-45※エンシンブロック換装済", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/10.JPG"}, {"no": 11, "machineName": "横井製全自動プレスFT44X8C(4尺×8尺)", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/11.JPG"}, {"no": 12, "machineName": "横井製全自動プレスFT44X8C(4尺×8尺)", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/12.JPG"}, {"no": 13, "machineName": "山本ビニター製高周波接着機BONDEX-8R(4尺幅)", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/13.JPG"}, {"no": 14, "machineName": "ホルツ製縁貼り機SPRINT1310", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/14.JPG"}, {"no": 15, "machineName": "汎用ボーリング機DOWLEX21 CC30", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/15.JPG"}, {"no": 16, "machineName": "ユーキ工業製自動ガンナSP-200", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/16.JPG"}, {"no": 17, "machineName": "㈱協和鉄工所ペティワークAL300 AL", "quantity": "6", "desiredPrice": "", "remarks": "", "photoPath": "写真/17.JPG"}, {"no": 18, "machineName": "新前田工業㈱エッジフォーマMEF-380N", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/18.JPG"}, {"no": 19, "machineName": "庄田鉄工業㈱面取り機SM123G", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/19.JPG"}, {"no": 20, "machineName": "カミヤ精機㈱テノーナKMW6-1200", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/20.JPG"}, {"no": 21, "machineName": "奥村製角のみC-TYPE", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/21.JPG"}, {"no": 22, "machineName": "㈱小坂精機ベルトサンダーW-1525-H", "quantity": "1", "desiredPrice": "", "remarks": "売約済み", "photoPath": "写真/22.JPG"}, {"no": 23, "machineName": "㈱小坂精機ベルトサンダーE-600型", "quantity": "1", "desiredPrice": "", "remarks": "売約済み", "photoPath": "写真/23.JPG"}, {"no": 24, "machineName": "ボール盤BEH-360", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/24.JPG"}, {"no": 25, "machineName": "日立製コンプレッサーPB-3.7MN6", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/25.JPG"}, {"no": 26, "machineName": "岩田エアードライヤーRDA-37E", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/26.JPG"}, {"no": 27, "machineName": "唐津鐵工製CNCルータ RT-7", "quantity": "1", "desiredPrice": "", "remarks": "売約済み", "photoPath": "写真/27.JPG"}, {"no": 28, "machineName": "シンクス製NCルーター20ZXG 4×8尺", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/28.JPG"}, {"no": 29, "machineName": "テーブルリフター　1m×2m", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/29.JPG"}, {"no": 30, "machineName": "桒原製作所製リップソーKR-30", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/30.JPG"}, {"no": 31, "machineName": "ヴァイニッヒ製モルダープロフィマット22N", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/31.JPG"}, {"no": 32, "machineName": "ノダ製手押しガンナNKT300※エンシンブロック換装済", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/32.JPG"}, {"no": 33, "machineName": "日立製帯鋸盤B-600A", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/33.JPG"}, {"no": 34, "machineName": "桒原製作所製ムラ取ガンナKPW-350", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/34.JPG"}, {"no": 35, "machineName": "日立製コンプレッサー3.7P-9.5VB6-60Hz", "quantity": "3", "desiredPrice": "", "remarks": "", "photoPath": "写真/35.JPG"}, {"no": 36, "machineName": "明治製ドライヤーDRC-4D-S2", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/36.JPG"}, {"no": 37, "machineName": "岩田製コンプレッサーAP15PB 1.5kw", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/37.JPG"}, {"no": 38, "machineName": "岩田製コンプレッサーAP22PB 2.2kw", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/38.JPG"}, {"no": 39, "machineName": "シンクス製超仕上げ機SK-250A", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/39.JPG"}, {"no": 40, "machineName": "シンクス製NCボーリング20CNB 1m×2m", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/40.JPG"}, {"no": 41, "machineName": "キンダイ製小型糊付機250-W", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/41.JPG"}, {"no": 42, "machineName": "スポットクーラーPromort P410-SCN", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/42.JPG"}, {"no": 43, "machineName": "マキタ製小型超仕上げLP1802C", "quantity": "1", "desiredPrice": "", "remarks": "", "photoPath": "写真/43.JPG"}]};
     const items = siteData.items;
@@ -409,14 +294,6 @@
       count: document.getElementById("resultCount"),
       gallery: document.getElementById("gallery"),
       empty: document.getElementById("emptyState"),
-      modal: document.getElementById("photoModal"),
-      modalImage: document.getElementById("modalImage"),
-      modalNo: document.getElementById("modalNo"),
-      modalTitle: document.getElementById("modalTitle"),
-      modalQuantity: document.getElementById("modalQuantity"),
-      modalRemarks: document.getElementById("modalRemarks"),
-      modalImageLink: document.getElementById("modalImageLink"),
-      closeModal: document.getElementById("closeModal"),
     };
 
     function escapeHtml(value) {
@@ -435,20 +312,12 @@
       return countText + dateText + noteText;
     }
 
-    function openModal(item) {
+    function openPhoto(item) {
       if (!item.photoPath) {
         window.alert("この機械には写真が登録されていません。");
         return;
       }
-
-      els.modalNo.textContent = `No. ${item.no}`;
-      els.modalTitle.textContent = item.machineName;
-      els.modalImage.src = encodeURI(item.photoPath);
-      els.modalImage.alt = item.machineName;
-      els.modalImageLink.href = encodeURI(item.photoPath);
-      els.modalQuantity.textContent = item.quantity || "-";
-      els.modalRemarks.textContent = item.remarks || "-";
-      els.modal.showModal();
+      window.open(encodeURI(item.photoPath), "_blank", "noopener,noreferrer");
     }
 
     function renderCards() {
@@ -474,7 +343,7 @@
 
         return `
           <article class="card">
-            <button class="card-button" type="button" data-no="${escapeHtml(item.no)}">
+            <button class="card-button" type="button" data-no="${escapeHtml(item.no)}" aria-label="${escapeHtml(item.machineName)} の写真を開く">
               ${photoBlock}
               <div class="card-body">
                 <p class="card-no">No. ${escapeHtml(item.no)}</p>
@@ -492,7 +361,7 @@
       for (const button of els.gallery.querySelectorAll(".card-button")) {
         button.addEventListener("click", () => {
           const item = items.find((entry) => String(entry.no) === button.dataset.no);
-          if (item) openModal(item);
+          if (item) openPhoto(item);
         });
       }
     }
@@ -503,13 +372,6 @@
 
     els.search.addEventListener("input", renderCards);
     els.filter.addEventListener("change", renderCards);
-    els.closeModal.addEventListener("click", () => els.modal.close());
-    els.modal.addEventListener("click", (event) => {
-      const rect = els.modal.getBoundingClientRect();
-      const inside = rect.top <= event.clientY && event.clientY <= rect.bottom && rect.left <= event.clientX && event.clientX <= rect.right;
-      if (!inside) els.modal.close();
-    });
-
     renderCards();
   </script>
 </body>
