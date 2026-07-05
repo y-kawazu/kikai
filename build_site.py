@@ -14,7 +14,7 @@ PHOTO_DIR = ROOT / "写真"
 OUTPUT_PATH = ROOT / "index.html"
 EXCLUDED_NUMBERS = set()
 SOLD_REMARK = "売約済み"
-SOLD_NUMBERS = {22, 23}
+SOLD_NUMBERS = {22, 23, 33}
 
 
 def clean(value: object) -> str:
