@@ -281,6 +281,10 @@ def render_html(data: dict[str, object]) -> str:
       color: var(--ink);
     }}
 
+    .card.is-sold .card-title {{
+      color: #8b928f;
+    }}
+
     .card-meta {{
       display: grid;
       gap: 10px;
@@ -440,9 +444,10 @@ def render_html(data: dict[str, object]) -> str:
         const photoBlock = item.photoPath
           ? `<div class="card-photo"><img src="${{encodeURI(item.photoPath)}}" alt="${{escapeHtml(item.machineName)}}"></div>`
           : `<div class="card-photo is-empty">写真未登録</div>`;
+        const soldClass = String(item.remarks || "").includes("売約済み") ? " is-sold" : "";
 
         return `
-          <article class="card">
+          <article class="card${{soldClass}}">
             <button class="card-button" type="button" data-no="${{escapeHtml(item.no)}}" aria-label="${{escapeHtml(item.machineName)}} の写真を開く">
               ${photoBlock}
               <div class="card-body">
