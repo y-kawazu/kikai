@@ -8,10 +8,13 @@ from openpyxl import load_workbook
 
 
 ROOT = Path(__file__).resolve().parent
-XLSX_PATH = ROOT / "KN機械査定_機械名クリック写真リンク付き.xlsx"
 REFERENCE_XLSX_PATH = ROOT / "KN機械査定_参考.xlsx"
 PHOTO_DIR = ROOT / "写真"
 OUTPUT_PATH = ROOT / "index.html"
+DEFAULT_TITLE = "機械査定"
+DEFAULT_SUBTITLE = "（有）河津内装　殿"
+DEFAULT_NOTE = "PDFの印刷部分のみ転記（手書きは未反映）"
+DEFAULT_SUMMARY_DATE = "2026年6月29日"
 EXCLUDED_NUMBERS = set()
 SOLD_REMARK = "売約済み"
 SOLD_NUMBERS = {22, 23, 33}
@@ -40,7 +43,7 @@ def find_photo(hyperlink: str, row_no: int) -> str:
 
 def build_reference_rows() -> dict[int, dict[str, str]]:
     if not REFERENCE_XLSX_PATH.exists():
-        return {}
+        raise FileNotFoundError(f"Source workbook not found: {REFERENCE_XLSX_PATH.name}")
 
     workbook = load_workbook(REFERENCE_XLSX_PATH, data_only=True)
     worksheet = workbook[workbook.sheetnames[0]]
@@ -52,52 +55,42 @@ def build_reference_rows() -> dict[int, dict[str, str]]:
             continue
         rows[number] = {
             "machineName": clean(worksheet[f"B{row}"].value),
+            "quantity": clean(worksheet[f"C{row}"].value),
             "remarks": clean(worksheet[f"F{row}"].value),
         }
     return rows
 
 
 def build_data() -> dict[str, object]:
-    workbook = load_workbook(XLSX_PATH, data_only=True)
-    worksheet = workbook[workbook.sheetnames[0]]
     reference_rows = build_reference_rows()
 
-    title = clean(worksheet["A1"].value) or "機械査定"
-    subtitle = clean(worksheet["A2"].value)
-    note = clean(worksheet["A3"].value)
-    summary_date = clean(worksheet["D2"].value)
-
     items: list[dict[str, object]] = []
-    for row in range(5, worksheet.max_row + 1):
-        number = worksheet[f"A{row}"].value
-        machine_name = clean(worksheet[f"B{row}"].value)
-        if not isinstance(number, int) or not machine_name:
-            continue
+    for number in sorted(reference_rows):
         if number in EXCLUDED_NUMBERS:
             continue
 
-        hyperlink = worksheet[f"B{row}"].hyperlink
-        photo_path = find_photo(hyperlink.target if hyperlink else "", number)
-        reference_row = reference_rows.get(number, {})
+        photo_path = find_photo("", number)
+        reference_row = reference_rows[number]
         reference_name = reference_row.get("machineName", "")
+        reference_quantity = reference_row.get("quantity", "")
         reference_remarks = reference_row.get("remarks", "")
 
         items.append(
             {
                 "no": number,
-                "machineName": reference_name or machine_name,
-                "quantity": clean(worksheet[f"C{row}"].value),
+                "machineName": reference_name,
+                "quantity": reference_quantity,
                 "desiredPrice": "",
-                "remarks": SOLD_REMARK if number in SOLD_NUMBERS or reference_remarks else clean(worksheet[f"F{row}"].value),
+                "remarks": SOLD_REMARK if number in SOLD_NUMBERS or reference_remarks else "",
                 "photoPath": photo_path,
             }
         )
 
     return {
-        "title": title,
-        "subtitle": subtitle,
-        "note": note,
-        "summaryDate": summary_date,
+        "title": DEFAULT_TITLE,
+        "subtitle": DEFAULT_SUBTITLE,
+        "note": DEFAULT_NOTE,
+        "summaryDate": DEFAULT_SUMMARY_DATE,
         "items": items,
     }
 
