@@ -138,6 +138,10 @@
       text-align: left;
     }
 
+    .card-button:disabled {
+      cursor: default;
+    }
+
     .card-photo {
       aspect-ratio: 4 / 3;
       background: #dde4df;
@@ -344,11 +348,16 @@
         const photoBlock = item.photoPath
           ? `<div class="card-photo"><img src="${encodeURI(item.photoPath)}" alt="${escapeHtml(item.machineName)}"></div>`
           : `<div class="card-photo is-empty">写真未登録</div>`;
-        const soldClass = String(item.remarks || "").includes("売約済み") ? " is-sold" : "";
+        const isSold = String(item.remarks || "").includes("売約済み");
+        const soldClass = isSold ? " is-sold" : "";
+        const disabledAttr = isSold ? " disabled" : "";
+        const ariaLabel = isSold
+          ? `${escapeHtml(item.machineName)} は売約済み`
+          : `${escapeHtml(item.machineName)} の写真を開く`;
 
         return `
           <article class="card${soldClass}">
-            <button class="card-button" type="button" data-no="${escapeHtml(item.no)}" aria-label="${escapeHtml(item.machineName)} の写真を開く">
+            <button class="card-button" type="button" data-no="${escapeHtml(item.no)}" aria-label="${ariaLabel}"${disabledAttr}>
               ${photoBlock}
               <div class="card-body">
                 <p class="card-no">No. ${escapeHtml(item.no)}</p>
@@ -365,6 +374,7 @@
 
       for (const button of els.gallery.querySelectorAll(".card-button")) {
         button.addEventListener("click", () => {
+          if (button.disabled) return;
           const item = items.find((entry) => String(entry.no) === button.dataset.no);
           if (item) openPhoto(item);
         });
