@@ -8,7 +8,7 @@ from openpyxl import load_workbook
 
 
 ROOT = Path(__file__).resolve().parent
-REFERENCE_XLSX_PATH = ROOT / "KN機械査定_参考.xlsx"
+REFERENCE_XLSX_PATH = ROOT / "KN機械査定_参考.xlsm"
 PHOTO_DIR = ROOT / "写真"
 OUTPUT_PATH = ROOT / "index.html"
 DEFAULT_TITLE = "機械査定"
