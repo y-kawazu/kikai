@@ -14,7 +14,6 @@ OUTPUT_PATH = ROOT / "index.html"
 DEFAULT_TITLE = "機械査定"
 DEFAULT_SUBTITLE = "（有）河津内装　殿"
 DEFAULT_NOTE = "PDFの印刷部分のみ転記（手書きは未反映）"
-DEFAULT_SUMMARY_DATE = "2026年6月29日"
 EXCLUDED_NUMBERS = set()
 SOLD_REMARK = "売約済み"
 SOLD_NUMBERS = {22, 23, 33}
@@ -61,8 +60,15 @@ def build_reference_rows() -> dict[int, dict[str, str]]:
     return rows
 
 
+def build_summary_date() -> str:
+    workbook = load_workbook(REFERENCE_XLSX_PATH, data_only=True, keep_vba=True)
+    worksheet = workbook[workbook.sheetnames[0]]
+    return clean(worksheet["C1"].value)
+
+
 def build_data() -> dict[str, object]:
     reference_rows = build_reference_rows()
+    summary_date = build_summary_date()
 
     items: list[dict[str, object]] = []
     for number in sorted(reference_rows):
@@ -90,7 +96,7 @@ def build_data() -> dict[str, object]:
         "title": DEFAULT_TITLE,
         "subtitle": DEFAULT_SUBTITLE,
         "note": DEFAULT_NOTE,
-        "summaryDate": DEFAULT_SUMMARY_DATE,
+        "summaryDate": summary_date,
         "items": items,
     }
 
