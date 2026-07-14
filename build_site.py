@@ -295,6 +295,10 @@ def render_html(data: dict[str, object]) -> str:
       color: #8b928f;
     }}
 
+    .card.is-sold .card-meta-row:last-child span {{
+      color: #111111;
+    }}
+
     .card-meta {{
       display: grid;
       gap: 10px;
