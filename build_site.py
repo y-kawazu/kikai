@@ -22,6 +22,10 @@ ITEM_OVERRIDES = {
     17: {
         "machineName": "(株)協和鉄工所ペティワークAL300",
         "quantity": "6",
+        "remarks": "WSが2台、ALが4台",
+    },
+    35: {
+        "remarks": "2台は売約済み",
     },
 }
 
@@ -91,6 +95,7 @@ def build_data() -> dict[str, object]:
         reference_name = item_override.get("machineName", reference_name)
         reference_quantity = item_override.get("quantity", reference_quantity)
         is_sold = number not in AVAILABLE_NUMBERS and (number in SOLD_NUMBERS or bool(reference_remarks))
+        display_remarks = item_override.get("remarks", SOLD_REMARK if is_sold else "")
 
         items.append(
             {
@@ -98,7 +103,8 @@ def build_data() -> dict[str, object]:
                 "machineName": reference_name,
                 "quantity": reference_quantity,
                 "desiredPrice": "",
-                "remarks": SOLD_REMARK if is_sold else "",
+                "remarks": display_remarks,
+                "isSold": is_sold,
                 "photoPath": photo_path,
             }
         )
@@ -306,7 +312,7 @@ def render_html(data: dict[str, object]) -> str:
       color: #8b928f;
     }}
 
-    .card.is-sold .card-meta-row:last-child span {{
+    .card-meta-row:last-child span {{
       color: #111111;
     }}
 
@@ -469,7 +475,7 @@ def render_html(data: dict[str, object]) -> str:
         const photoBlock = item.photoPath
           ? `<div class="card-photo"><img src="${{encodeURI(item.photoPath)}}" alt="${{escapeHtml(item.machineName)}}"></div>`
           : `<div class="card-photo is-empty">写真未登録</div>`;
-        const isSold = String(item.remarks || "").includes("売約済み");
+        const isSold = Boolean(item.isSold);
         const soldClass = isSold ? " is-sold" : "";
         const disabledAttr = isSold ? " disabled" : "";
         const ariaLabel = isSold
