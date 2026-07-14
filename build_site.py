@@ -18,6 +18,12 @@ EXCLUDED_NUMBERS = set()
 SOLD_REMARK = "売約済み"
 SOLD_NUMBERS = {22, 23, 33}
 AVAILABLE_NUMBERS = {35}
+ITEM_OVERRIDES = {
+    17: {
+        "machineName": "(株)協和鉄工所ペティワークAL300",
+        "quantity": "6",
+    },
+}
 
 
 def clean(value: object) -> str:
@@ -81,6 +87,9 @@ def build_data() -> dict[str, object]:
         reference_name = reference_row.get("machineName", "")
         reference_quantity = reference_row.get("quantity", "")
         reference_remarks = reference_row.get("remarks", "")
+        item_override = ITEM_OVERRIDES.get(number, {})
+        reference_name = item_override.get("machineName", reference_name)
+        reference_quantity = item_override.get("quantity", reference_quantity)
         is_sold = number not in AVAILABLE_NUMBERS and (number in SOLD_NUMBERS or bool(reference_remarks))
 
         items.append(
