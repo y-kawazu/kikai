@@ -17,6 +17,7 @@ DEFAULT_NOTE = ""
 EXCLUDED_NUMBERS = set()
 SOLD_REMARK = "売約済み"
 SOLD_NUMBERS = {22, 23, 33}
+AVAILABLE_NUMBERS = {35}
 
 
 def clean(value: object) -> str:
@@ -80,6 +81,7 @@ def build_data() -> dict[str, object]:
         reference_name = reference_row.get("machineName", "")
         reference_quantity = reference_row.get("quantity", "")
         reference_remarks = reference_row.get("remarks", "")
+        is_sold = number not in AVAILABLE_NUMBERS and (number in SOLD_NUMBERS or bool(reference_remarks))
 
         items.append(
             {
@@ -87,7 +89,7 @@ def build_data() -> dict[str, object]:
                 "machineName": reference_name,
                 "quantity": reference_quantity,
                 "desiredPrice": "",
-                "remarks": SOLD_REMARK if number in SOLD_NUMBERS or reference_remarks else "",
+                "remarks": SOLD_REMARK if is_sold else "",
                 "photoPath": photo_path,
             }
         )
