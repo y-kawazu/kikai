@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import os
 import shutil
+import stat
 from pathlib import Path
 
 
@@ -49,15 +51,24 @@ WORKER_JS = """export default {
 """
 
 
+def remove_readonly(func, path: str, _exc_info) -> None:
+    """Retry removal after clearing attributes added by sync software."""
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
+
+
+def remove_tree(path: Path) -> None:
+    if path.exists():
+        shutil.rmtree(path, onexc=remove_readonly)
+
+
 def copy_tree(source: Path, destination: Path) -> None:
-    if destination.exists():
-        shutil.rmtree(destination)
+    remove_tree(destination)
     shutil.copytree(source, destination)
 
 
 def main() -> None:
-    if DIST_ROOT.exists():
-        shutil.rmtree(DIST_ROOT)
+    remove_tree(DIST_ROOT)
 
     CLIENT_ROOT.mkdir(parents=True, exist_ok=True)
     SERVER_ROOT.mkdir(parents=True, exist_ok=True)
