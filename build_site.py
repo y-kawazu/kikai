@@ -405,10 +405,10 @@ def render_html(data: dict[str, object]) -> str:
 
     <section class="toolbar" aria-label="検索と絞り込み">
       <input id="searchInput" class="search" type="search" placeholder="機械名・備考で検索">
-      <select id="photoFilter" class="filter">
+      <select id="statusFilter" class="filter">
         <option value="all">すべて表示</option>
-        <option value="with-photo">写真ありのみ</option>
-        <option value="without-photo">写真なしのみ</option>
+        <option value="available">販売中のもの</option>
+        <option value="sold">売約済みのもの</option>
       </select>
       <div class="count" id="resultCount"></div>
     </section>
@@ -425,7 +425,7 @@ def render_html(data: dict[str, object]) -> str:
       subtitle: document.getElementById("page-subtitle"),
       meta: document.getElementById("page-meta"),
       search: document.getElementById("searchInput"),
-      filter: document.getElementById("photoFilter"),
+      filter: document.getElementById("statusFilter"),
       count: document.getElementById("resultCount"),
       gallery: document.getElementById("gallery"),
       empty: document.getElementById("emptyState"),
@@ -457,15 +457,16 @@ def render_html(data: dict[str, object]) -> str:
 
     function renderCards() {{
       const keyword = els.search.value.trim().toLowerCase();
-      const photoMode = els.filter.value;
+      const statusMode = els.filter.value;
       const filtered = items.filter((item) => {{
         const text = [item.machineName, item.remarks].join(" ").toLowerCase();
         const matchKeyword = !keyword || text.includes(keyword);
-        const matchPhoto =
-          photoMode === "all" ||
-          (photoMode === "with-photo" && item.photoPath) ||
-          (photoMode === "without-photo" && !item.photoPath);
-        return matchKeyword && matchPhoto;
+        const isSold = Boolean(item.isSold);
+        const matchStatus =
+          statusMode === "all" ||
+          (statusMode === "available" && !isSold) ||
+          (statusMode === "sold" && isSold);
+        return matchKeyword && matchStatus;
       }});
 
       els.count.textContent = `${filtered.length} 件表示`;
