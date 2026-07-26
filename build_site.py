@@ -407,7 +407,7 @@ def render_html(data: dict[str, object]) -> str:
       <input id="searchInput" class="search" type="search" placeholder="機械名・備考で検索">
       <select id="statusFilter" class="filter">
         <option value="all">すべて表示</option>
-        <option value="available">販売中のもの</option>
+        <option value="available" selected>販売中のもの</option>
         <option value="sold">売約済みのもの</option>
       </select>
       <div class="count" id="resultCount"></div>
