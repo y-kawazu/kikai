@@ -18,13 +18,7 @@ EXCLUDED_NUMBERS = set()
 SOLD_REMARK = "売約済み"
 SOLD_NUMBERS = {22, 23, 33}
 AVAILABLE_NUMBERS = set()
-ITEM_OVERRIDES = {
-    17: {
-        "machineName": "(株)協和鉄工所ペティワークAL300",
-        "quantity": "6",
-        "remarks": "WSが2台、ALが4台",
-    },
-}
+ITEM_OVERRIDES = {}
 
 
 def clean(value: object) -> str:
@@ -33,7 +27,7 @@ def clean(value: object) -> str:
     return str(value).strip()
 
 
-def find_photo(hyperlink: str, row_no: int) -> str:
+def find_photo(hyperlink: str, row_no: int | str) -> str:
     photo_index = {path.name.lower(): path.name for path in PHOTO_DIR.glob("*") if path.is_file()}
 
     candidate_names: list[str] = []
@@ -48,17 +42,22 @@ def find_photo(hyperlink: str, row_no: int) -> str:
     return ""
 
 
-def build_reference_rows() -> dict[int, dict[str, str]]:
+def build_reference_rows() -> dict[int | str, dict[str, str]]:
     if not REFERENCE_XLSX_PATH.exists():
         raise FileNotFoundError(f"Source workbook not found: {REFERENCE_XLSX_PATH.name}")
 
     workbook = load_workbook(REFERENCE_XLSX_PATH, data_only=True)
     worksheet = workbook[workbook.sheetnames[0]]
 
-    rows: dict[int, dict[str, str]] = {}
+    rows: dict[int | str, dict[str, str]] = {}
     for row in range(1, worksheet.max_row + 1):
         number = worksheet[f"A{row}"].value
-        if not isinstance(number, int):
+        if isinstance(number, str):
+            number = number.strip()
+            parts = number.split("-", 1)
+            if not (parts[0].isdigit() and (len(parts) == 1 or parts[1].isdigit())):
+                continue
+        elif not isinstance(number, int):
             continue
         rows[number] = {
             "machineName": clean(worksheet[f"B{row}"].value),
@@ -66,6 +65,11 @@ def build_reference_rows() -> dict[int, dict[str, str]]:
             "remarks": clean(worksheet[f"F{row}"].value),
         }
     return rows
+
+
+def item_sort_key(number: int | str) -> tuple[int, int]:
+    parts = str(number).split("-", 1)
+    return int(parts[0]), int(parts[1]) if len(parts) == 2 else 0
 
 
 def build_summary_date() -> str:
@@ -79,7 +83,7 @@ def build_data() -> dict[str, object]:
     summary_date = build_summary_date()
 
     items: list[dict[str, object]] = []
-    for number in sorted(reference_rows):
+    for number in sorted(reference_rows, key=item_sort_key):
         if number in EXCLUDED_NUMBERS:
             continue
 
