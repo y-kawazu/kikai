@@ -17,15 +17,12 @@ DEFAULT_NOTE = ""
 EXCLUDED_NUMBERS = set()
 SOLD_REMARK = "売約済み"
 SOLD_NUMBERS = {22, 23, 33}
-AVAILABLE_NUMBERS = {35}
+AVAILABLE_NUMBERS = set()
 ITEM_OVERRIDES = {
     17: {
         "machineName": "(株)協和鉄工所ペティワークAL300",
         "quantity": "6",
         "remarks": "WSが2台、ALが4台",
-    },
-    35: {
-        "remarks": "2台は売約済み",
     },
 }
 
