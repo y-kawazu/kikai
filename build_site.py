@@ -57,6 +57,8 @@ def build_reference_rows() -> dict[int | str, dict[str, str]]:
             parts = number.split("-", 1)
             if not (parts[0].isdigit() and (len(parts) == 1 or parts[1].isdigit())):
                 continue
+            if len(parts) == 1:
+                number = int(parts[0])
         elif not isinstance(number, int):
             continue
         rows[number] = {
